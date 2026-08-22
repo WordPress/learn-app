@@ -6,6 +6,7 @@
  * Author: Alex Kirk
  * Author URI: https://alex.kirk.at/
  * Text Domain: learn-app
+ * Tested up to: 7.1
  * Requires PHP: 7.4
  */
 
