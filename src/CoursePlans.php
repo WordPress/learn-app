@@ -10,7 +10,44 @@ class CoursePlans {
     private const END_DATE_META_KEY = '_wordpress_courses_end_date';
     private const LESSON_NOTES_META_KEY = '_wordpress_courses_lesson_notes';
 
+    /**
+     * Fallback (older wp-app without Access): deny anonymous REST reads of the
+     * course-plan route. Logged-in reads (and the block editor) are unaffected.
+     *
+     * @param mixed            $result  Response to replace the requested one, or null.
+     * @param \WP_REST_Server  $server  Server instance.
+     * @param \WP_REST_Request $request Current request.
+     * @return mixed
+     */
+    public static function require_login_for_rest( $result, $server, $request ) {
+        if ( is_user_logged_in() ) {
+            return $result;
+        }
+
+        $route = $request->get_route();
+        foreach ( [ self::PLAN_POST_TYPE ] as $base ) {
+            if ( 0 === strpos( $route, '/wp/v2/' . $base ) ) {
+                return new \WP_Error(
+                    'rest_login_required',
+                    __( 'Authentication is required to read this data.', 'learn-app' ),
+                    [ 'status' => rest_authorization_required_code() ]
+                );
+            }
+        }
+
+        return $result;
+    }
+
     public static function register_post_type(): void {
+        // REST reads of course plans must be gated: front-end require_login does
+        // not cover the REST API, and core keys anonymous read access off
+        // show_in_rest alone (not 'public'). Use wp-app's Access gate; if an
+        // older wp-app without it is the loaded copy, fall back to a request filter.
+        $rest_gate = class_exists( '\\WpApp\\Rest\\Access' );
+        if ( ! $rest_gate ) {
+            add_filter( 'rest_pre_dispatch', [ __CLASS__, 'require_login_for_rest' ], 10, 3 );
+        }
+
         register_post_type(
             self::PLAN_POST_TYPE,
             [
@@ -22,6 +59,7 @@ class CoursePlans {
                 'show_ui'         => true,
                 'show_in_menu'    => true,
                 'show_in_rest'    => true,
+                'rest_controller_class' => $rest_gate ? \WpApp\Rest\Access::protect_post_type( self::PLAN_POST_TYPE, 'read' ) : null,
                 'supports'        => [ 'title', 'author' ],
                 'capability_type' => 'post',
             ]
