@@ -3,7 +3,7 @@
 namespace WordpressCourses;
 
 class CoursePlans {
-    private const PLAN_POST_TYPE = 'wp_course_plan';
+    public const PLAN_POST_TYPE = 'wp_course_plan';
     private const COURSE_ID_META_KEY = '_wordpress_courses_course_id';
     private const COMPLETED_LESSONS_META_KEY = '_wordpress_courses_completed_lesson_ids';
     private const START_DATE_META_KEY = '_wordpress_courses_start_date';
@@ -39,12 +39,10 @@ class CoursePlans {
     }
 
     public static function register_post_type(): void {
-        // REST reads of course plans must be gated: front-end require_login does
-        // not cover the REST API, and core keys anonymous read access off
-        // show_in_rest alone (not 'public'). Use wp-app's Access gate; if an
-        // older wp-app without it is the loaded copy, fall back to a request filter.
-        $rest_gate = class_exists( '\\WpApp\\Rest\\Access' );
-        if ( ! $rest_gate ) {
+        // REST reads are gated by wp-app via the 'post_types' app option. If an
+        // older wp-app without that gate is the loaded copy, fall back to a
+        // request filter.
+        if ( ! class_exists( '\\WpApp\\Rest\\Access' ) ) {
             add_filter( 'rest_pre_dispatch', [ __CLASS__, 'require_login_for_rest' ], 10, 3 );
         }
 
@@ -59,7 +57,6 @@ class CoursePlans {
                 'show_ui'         => true,
                 'show_in_menu'    => true,
                 'show_in_rest'    => true,
-                'rest_controller_class' => $rest_gate ? \WpApp\Rest\Access::protect_post_type( self::PLAN_POST_TYPE, 'read' ) : null,
                 'supports'        => [ 'title', 'author' ],
                 'capability_type' => 'post',
             ]

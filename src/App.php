@@ -24,8 +24,11 @@ class App extends BaseApp {
             // App identity
             'app_name'            => $this->get_plugin_name(),
             'app_name_textdomain' => 'learn-app',
-            // 'my_apps'             => true,
-            'my_apps_icon'        => 'dashicons-welcome-learn-more',
+            // 'launcher'            => true,
+            'app_icon'            => 'dashicons-welcome-learn-more',
+            // Owned content: REST reads are gated with the app's capability and
+            // OpenStation keeps these menus out of its dock.
+            'post_types'          => [ CoursePlans::PLAN_POST_TYPE ],
         ] );
 
         add_action( 'init', [ $this, 'register_post_types' ] );
