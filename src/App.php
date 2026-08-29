@@ -26,6 +26,9 @@ class App extends BaseApp {
             'app_name_textdomain' => 'learn-app',
             // 'launcher'            => true,
             'app_icon'            => 'dashicons-welcome-learn-more',
+            'app_icon_background' => 'linear-gradient(135deg, #1e3c72, #2a5298)',
+            'app_icon_color'      => '#fff',
+            'app_icon_shadow'     => true,
             // Owned content: REST reads are gated with the app's capability and
             // OpenStation keeps these menus out of its dock.
             'post_types'          => [ CoursePlans::PLAN_POST_TYPE ],
