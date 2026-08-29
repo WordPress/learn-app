@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Learn WordPress
  * Description: A WordPress app powered by WpApp.
- * Version: 1.0.0
+ * Version: 1.0.0+85ea68d459eb
  * Author: Alex Kirk
  * Author URI: https://alex.kirk.at/
  * Text Domain: learn-app
