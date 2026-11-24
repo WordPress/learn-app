@@ -1,0 +1,5 @@
+# Test and CI setup is development-only, not part of the distributed plugin.
+.gitattributes export-ignore
+.github export-ignore
+phpunit.xml.dist export-ignore
+tests export-ignore
