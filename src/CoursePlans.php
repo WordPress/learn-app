@@ -272,7 +272,7 @@ class CoursePlans {
     public static function restore_plan( int $user_id, int $plan_id ): bool {
         $plan = get_post( $plan_id );
 
-        if ( ! $plan || self::PLAN_POST_TYPE !== $plan->post_type || 'trash' !== $plan->post_status ) {
+        if ( ! $plan || self::PLAN_POST_TYPE !== $plan->post_type || (int) $plan->post_author !== $user_id || 'trash' !== $plan->post_status ) {
             return false;
         }
 
@@ -308,7 +308,7 @@ class CoursePlans {
             return;
         }
 
-        return;
+        update_post_meta( $plan_id, self::COMPLETED_LESSONS_META_KEY, $lesson_ids );
     }
 
     public static function user_can_use_plan( int $user_id, int $plan_id ): bool {
@@ -318,7 +318,7 @@ class CoursePlans {
             return false;
         }
 
-        return true;
+        return (int) $plan->post_author === $user_id;
     }
 
     public static function get_time_progress_percent( string $start_date, string $end_date ): int {
